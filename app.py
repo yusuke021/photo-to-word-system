@@ -336,6 +336,14 @@ st.markdown("---")
 
 # サイドバー設定
 with st.sidebar:
+    st.header("📝 名称挿入設定")
+    insert_name = st.checkbox(
+        "写真の部品名を挿入",
+        value=False,
+        help="ファイル名形式: 番号_部品名_..._写真区分_...\n写真区分=Pのみ貼り付け"
+    )
+    
+    st.markdown("---")
     st.header("⚙️ 表の設定")
     
     rows = st.number_input("行数", min_value=2, max_value=20, value=8, step=2)
@@ -357,14 +365,6 @@ with st.sidebar:
     st.subheader("📝 偶数行（説明用）")
     even_height = st.number_input("高さ (mm)", min_value=5.0, max_value=100.0, value=7.0, step=1.0, key="even_h")
     even_width = st.number_input("幅 (mm)", min_value=10.0, max_value=200.0, value=82.0, step=1.0, key="even_w")
-    
-    st.markdown("---")
-    st.header("📝 名称挿入設定")
-    insert_name = st.checkbox(
-        "写真の部品名を挿入",
-        value=False,
-        help="ファイル名形式: 番号_部品名_..._写真区分_...\n写真区分=Pのみ貼り付け"
-    )
     
     st.markdown("---")
     st.header("🎨 画像品質設定")
