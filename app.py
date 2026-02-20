@@ -234,11 +234,18 @@ def insert_part_name_to_cell(cell, part_name):
 
 def create_word_document(uploaded_files, settings, insert_name, existing_doc_file=None, ppi=220):
     """Wordドキュメントを作成または既存ファイルに追記"""
-    # 既存のWordファイルがある場合はそれを開く、ない場合は新規作成
+    # 既存のWordファイルがある場合はそれを開く、ない場合は新規作成（テンプレート使用）
     if existing_doc_file is not None:
         doc = Document(existing_doc_file)
     else:
-        doc = Document()
+        # テンプレートファイルが存在する場合はそれを使用
+        template_path = os.path.join(os.path.dirname(__file__), 'template.docx')
+        if os.path.exists(template_path):
+            doc = Document(template_path)
+            st.info("📋 テンプレートを使用して新規ファイルを作成します")
+        else:
+            doc = Document()
+            st.warning("⚠️ テンプレートファイル (template.docx) が見つかりません。空白のWordファイルを作成します。")
     
     rows = settings['rows']
     cols = settings['cols']
@@ -324,13 +331,18 @@ st.header("📄 Wordファイル（オプション）")
 uploaded_word = st.file_uploader(
     "既存のWordファイルをアップロード（省略すると新規作成）",
     type=['docx'],
-    help="既存のWordファイルに追記したい場合はアップロードしてください"
+    help="既存のWordファイルに追記したい場合はアップロードしてください。省略した場合、template.docxがあれば自動的にテンプレートが適用されます。"
 )
 
 if uploaded_word:
     st.success(f"✅ {uploaded_word.name} が選択されています（このファイルに追記されます）")
 else:
-    st.info("新規Wordファイルが作成されます")
+    # テンプレートファイルの存在確認
+    template_path = os.path.join(os.path.dirname(__file__), 'template.docx')
+    if os.path.exists(template_path):
+        st.info("📋 テンプレートファイル (template.docx) を使用して新規作成されます")
+    else:
+        st.info("新規Wordファイルが作成されます（テンプレートなし）")
 
 st.markdown("---")
 

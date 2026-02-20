@@ -34,6 +34,7 @@ config.json
 
 # Word files (test files)
 *.docx
+!template.docx
 sample_document.docx
 
 # Image files (to prevent committing test images with personal info)
