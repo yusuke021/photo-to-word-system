@@ -23,9 +23,23 @@ Thumbs.db
 # Streamlit
 .streamlit/secrets.toml
 
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets.json
+config.json
+
 # Word files (test files)
 *.docx
 sample_document.docx
+
+# Image files (to prevent committing test images with personal info)
+test_images/
+uploads/
+*.heic
 
 # Temporary files
 *.tmp
