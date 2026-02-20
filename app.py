@@ -214,9 +214,13 @@ def insert_part_name_to_cell(cell, part_name):
     r_pr.append(r_fonts)
 
 
-def create_word_document(uploaded_files, settings, insert_name):
-    """Wordドキュメントを作成"""
-    doc = Document()
+def create_word_document(uploaded_files, settings, insert_name, existing_doc_file=None):
+    """Wordドキュメントを作成または既存ファイルに追記"""
+    # 既存のWordファイルがある場合はそれを開く、ない場合は新規作成
+    if existing_doc_file is not None:
+        doc = Document(existing_doc_file)
+    else:
+        doc = Document()
     
     rows = settings['rows']
     cols = settings['cols']
@@ -297,6 +301,21 @@ def create_word_document(uploaded_files, settings, insert_name):
 st.title("📸 写真を表形式でWordに貼り付ける")
 st.markdown("---")
 
+# Wordファイルアップロード（オプション）
+st.header("📄 Wordファイル（オプション）")
+uploaded_word = st.file_uploader(
+    "既存のWordファイルをアップロード（省略すると新規作成）",
+    type=['docx'],
+    help="既存のWordファイルに追記したい場合はアップロードしてください"
+)
+
+if uploaded_word:
+    st.success(f"✅ {uploaded_word.name} が選択されています（このファイルに追記されます）")
+else:
+    st.info("新規Wordファイルが作成されます")
+
+st.markdown("---")
+
 # サイドバー設定
 with st.sidebar:
     st.header("⚙️ 表の設定")
@@ -354,7 +373,16 @@ with col1:
 
 with col2:
     st.header("📊 設定サマリー")
+    
+    # Wordファイルの状態
+    if uploaded_word:
+        word_status = f"📄 既存ファイル: {uploaded_word.name}"
+    else:
+        word_status = "📄 新規Wordファイル"
+    
     st.info(f"""
+    {word_status}
+    
     **表の設定:**
     - 行数: {rows}行
     - 列数: {cols}列
@@ -397,7 +425,7 @@ if st.button("✨ Wordファイルを生成", type="primary"):
                 }
                 
                 try:
-                    doc = create_word_document(filtered_files, settings, insert_name)
+                    doc = create_word_document(filtered_files, settings, insert_name, uploaded_word)
                     
                     # メモリ上に保存
                     doc_io = io.BytesIO()
@@ -406,9 +434,17 @@ if st.button("✨ Wordファイルを生成", type="primary"):
                     
                     # ダウンロードボタン
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    filename = f"写真貼り付け_{timestamp}.docx"
+                    if uploaded_word:
+                        # 既存ファイル名をベースにする
+                        base_name = os.path.splitext(uploaded_word.name)[0]
+                        filename = f"{base_name}_追記_{timestamp}.docx"
+                    else:
+                        filename = f"写真貼り付け_{timestamp}.docx"
                     
-                    st.success(f"✅ {len(filtered_files)}枚の画像を表に貼り付けました！")
+                    if uploaded_word:
+                        st.success(f"✅ 既存のWordファイルに{len(filtered_files)}枚の画像を追記しました！")
+                    else:
+                        st.success(f"✅ {len(filtered_files)}枚の画像を表に貼り付けました！")
                     
                     st.download_button(
                         label="📥 Wordファイルをダウンロード",
