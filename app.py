@@ -149,8 +149,8 @@ def set_table_borders(table, border_type):
     tblPr.append(tblBorders)
 
 
-def insert_image_to_cell(cell, uploaded_file, cell_height_mm):
-    """セルに画像を挿入"""
+def insert_image_to_cell(cell, uploaded_file, cell_height_mm, ppi=220):
+    """セルに画像を挿入（指定されたPPIで）"""
     img = Image.open(uploaded_file)
     img_width, img_height = img.size
     aspect_ratio = img_width / img_height
@@ -166,17 +166,35 @@ def insert_image_to_cell(cell, uploaded_file, cell_height_mm):
     run = paragraph.add_run()
     
     file_ext = os.path.splitext(uploaded_file.name)[1].lower()
+    
+    # 画像を指定のPPIでメモリ上に保存
     if file_ext in ['.heic', '.heif']:
         if img.mode in ('RGBA', 'LA', 'P'):
             img = img.convert('RGB')
         
         img_byte_arr = io.BytesIO()
-        img.save(img_byte_arr, format='JPEG', quality=95)
+        # DPI情報を設定してJPEG保存
+        img.save(img_byte_arr, format='JPEG', quality=95, dpi=(ppi, ppi))
         img_byte_arr.seek(0)
         run.add_picture(img_byte_arr, height=Mm(target_height_mm))
     else:
+        # 通常の画像もPPI情報を設定
         uploaded_file.seek(0)
-        run.add_picture(uploaded_file, height=Mm(target_height_mm))
+        img_byte_arr = io.BytesIO()
+        
+        # RGBAモードの場合はRGBに変換
+        if img.mode in ('RGBA', 'LA', 'P'):
+            img = img.convert('RGB')
+        
+        # 元の形式を保持しつつDPI情報を設定
+        img_format = 'JPEG' if file_ext in ['.jpg', '.jpeg'] else 'PNG'
+        if img_format == 'JPEG':
+            img.save(img_byte_arr, format=img_format, quality=95, dpi=(ppi, ppi))
+        else:
+            img.save(img_byte_arr, format=img_format, dpi=(ppi, ppi))
+        
+        img_byte_arr.seek(0)
+        run.add_picture(img_byte_arr, height=Mm(target_height_mm))
 
 
 def insert_part_name_to_cell(cell, part_name):
@@ -214,7 +232,7 @@ def insert_part_name_to_cell(cell, part_name):
     r_pr.append(r_fonts)
 
 
-def create_word_document(uploaded_files, settings, insert_name, existing_doc_file=None):
+def create_word_document(uploaded_files, settings, insert_name, existing_doc_file=None, ppi=220):
     """Wordドキュメントを作成または既存ファイルに追記"""
     # 既存のWordファイルがある場合はそれを開く、ない場合は新規作成
     if existing_doc_file is not None:
@@ -278,7 +296,7 @@ def create_word_document(uploaded_files, settings, insert_name, existing_doc_fil
                         cell = table.rows[row_idx].cells[col_idx]
                         image_file = page_images[image_idx]
                         
-                        insert_image_to_cell(cell, image_file, odd_height)
+                        insert_image_to_cell(cell, image_file, odd_height, ppi)
                         
                         if insert_name and row_idx + 1 < rows:
                             part_name, _ = parse_filename(image_file.name)
@@ -347,6 +365,23 @@ with st.sidebar:
         value=False,
         help="ファイル名形式: 番号_部品名_..._写真区分_...\n写真区分=Pのみ貼り付け"
     )
+    
+    st.markdown("---")
+    st.header("🎨 画像品質設定")
+    image_quality = st.radio(
+        "画像の解像度 (PPI)",
+        options=["印刷用 (220 ppi)", "高性能 (300 ppi)", "標準 (150 ppi)"],
+        index=0,
+        help="印刷用がファイルサイズと品質のバランスが良く推奨されます"
+    )
+    
+    # PPI値を抽出
+    ppi_map = {
+        "印刷用 (220 ppi)": 220,
+        "高性能 (300 ppi)": 300,
+        "標準 (150 ppi)": 150
+    }
+    selected_ppi = ppi_map[image_quality]
 
 # メインコンテンツ
 col1, col2 = st.columns([2, 1])
@@ -393,6 +428,9 @@ with col2:
     - 奇数行: {odd_height}mm × {odd_width}mm
     - 偶数行: {even_height}mm × {even_width}mm
     
+    **画像品質:**
+    - 解像度: {image_quality}
+    
     **1ページあたり:** {(rows // 2) * cols}枚の写真
     """)
 
@@ -425,7 +463,7 @@ if st.button("✨ Wordファイルを生成", type="primary"):
                 }
                 
                 try:
-                    doc = create_word_document(filtered_files, settings, insert_name, uploaded_word)
+                    doc = create_word_document(filtered_files, settings, insert_name, uploaded_word, selected_ppi)
                     
                     # メモリ上に保存
                     doc_io = io.BytesIO()
