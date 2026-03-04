@@ -239,13 +239,33 @@ def create_word_document(uploaded_files, settings, insert_name, existing_doc_fil
         doc = Document(existing_doc_file)
     else:
         # テンプレートファイルが存在する場合はそれを使用
-        template_path = os.path.join(os.path.dirname(__file__), 'template.docx')
-        if os.path.exists(template_path):
-            doc = Document(template_path)
-            st.info("📋 テンプレートを使用して新規ファイルを作成します")
-        else:
+        # Streamlit Cloud対応：複数のパスを試行
+        template_paths = [
+            'template.docx',  # カレントディレクトリ
+            os.path.join(os.getcwd(), 'template.docx'),  # 絶対パス
+        ]
+        
+        # __file__が利用可能な場合は追加
+        try:
+            if '__file__' in globals():
+                template_paths.insert(0, os.path.join(os.path.dirname(__file__), 'template.docx'))
+        except:
+            pass
+        
+        template_found = False
+        for template_path in template_paths:
+            if os.path.exists(template_path):
+                try:
+                    doc = Document(template_path)
+                    st.info("📋 テンプレートを使用して新規ファイルを作成します")
+                    template_found = True
+                    break
+                except Exception as e:
+                    continue
+        
+        if not template_found:
             doc = Document()
-            st.warning("⚠️ テンプレートファイル (template.docx) が見つかりません。空白のWordファイルを作成します。")
+            st.info("📄 空白のWordファイルを作成します")
     
     rows = settings['rows']
     cols = settings['cols']
@@ -338,8 +358,22 @@ if uploaded_word:
     st.success(f"✅ {uploaded_word.name} が選択されています（このファイルに追記されます）")
 else:
     # テンプレートファイルの存在確認
-    template_path = os.path.join(os.path.dirname(__file__), 'template.docx')
-    if os.path.exists(template_path):
+    template_exists = False
+    template_paths = ['template.docx', os.path.join(os.getcwd(), 'template.docx')]
+    
+    # __file__が利用可能な場合は追加
+    try:
+        if '__file__' in globals():
+            template_paths.insert(0, os.path.join(os.path.dirname(__file__), 'template.docx'))
+    except:
+        pass
+    
+    for template_path in template_paths:
+        if os.path.exists(template_path):
+            template_exists = True
+            break
+    
+    if template_exists:
         st.info("📋 テンプレートファイル (template.docx) を使用して新規作成されます")
     else:
         st.info("新規Wordファイルが作成されます（テンプレートなし）")
