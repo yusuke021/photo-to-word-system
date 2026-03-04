@@ -30,6 +30,10 @@ st.set_page_config(
     layout="wide"
 )
 
+# セッション状態の初期化
+if 'download_key' not in st.session_state:
+    st.session_state.download_key = 0
+
 # カスタムCSS
 st.markdown("""
 <style>
@@ -516,7 +520,7 @@ if st.button("✨ Wordファイルを生成", type="primary"):
                     doc.save(doc_io)
                     doc_io.seek(0)
                     
-                    # ダウンロードボタン
+                    # ダウンロードボタン用のファイル名とキー生成
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                     if uploaded_word:
                         # 既存ファイル名をベースにする
@@ -525,20 +529,27 @@ if st.button("✨ Wordファイルを生成", type="primary"):
                     else:
                         filename = f"写真貼り付け_{timestamp}.docx"
                     
+                    # セッション状態のキーを更新
+                    st.session_state.download_key += 1
+                    
                     if uploaded_word:
                         st.success(f"✅ 既存のWordファイルに{len(filtered_files)}枚の画像を追記しました！")
                     else:
                         st.success(f"✅ {len(filtered_files)}枚の画像を表に貼り付けました！")
                     
+                    # ユニークなkeyを使用してダウンロードボタンを作成
                     st.download_button(
                         label="📥 Wordファイルをダウンロード",
                         data=doc_io,
                         file_name=filename,
-                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        key=f"download_btn_{st.session_state.download_key}"
                     )
                     
                 except Exception as e:
                     st.error(f"❌ エラーが発生しました: {str(e)}")
+                    import traceback
+                    st.error(f"詳細: {traceback.format_exc()}")
 
 # フッター
 st.markdown("---")
