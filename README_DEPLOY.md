@@ -90,11 +90,13 @@ streamlit run app.py
 [server]
 maxUploadSize = 200  # 最大200MBまでアップロード可能
 enableXsrfProtection = true
-enableCORS = false
+# enableCORSは自動的にtrueに設定されます（XSRF保護有効時）
 
 [browser]
 gatherUsageStats = false
 ```
+
+> ⚠️ **重要**: `enableCORS = false` と `enableXsrfProtection = true` は互換性がありません。最新の設定では、CORS設定を省略して自動設定に任せています。
 
 ### デプロイ手順
 1. GitHubリポジトリを作成
@@ -104,6 +106,14 @@ gatherUsageStats = false
 5. 自動でPython 3.11が検出されます
 
 ## ⚠️ トラブルシューティング
+
+### エラー: "streamlit: ERROR (spawn error)"
+**原因**: `.streamlit/config.toml` の設定項目が互換性がない  
+**具体**: `enableCORS=false` と `enableXsrfProtection=true` の両方を設定するとエラー  
+**解決策**: 
+- **既に修正済み** - 最新のリポジトリをpullしてください
+- CORS設定は自動設定に任せるように変更済み
+- アプリが正常に起動します
 
 ### エラー: "MediaFileStorageError"
 **原因**: セッション管理の問題、古いダウンロードリンクの参照  

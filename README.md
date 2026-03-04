@@ -158,7 +158,16 @@ streamlit hello  # 動作確認
 
 ### Streamlit Cloudでエラーが発生する場合
 
-**エラー例**: `MediaFileStorageError: Bad filename '*.docx'`
+#### エラー1: `streamlit: ERROR (spawn error)`
+
+**原因**: 設定ファイルの互換性問題
+
+**解決策**:
+- 既に修正済み（最新のコードでは発生しません）
+- `.streamlit/config.toml` で `enableCORS=false` と `enableXsrfProtection=true` が互換性がない
+- 最新のリポジトリをpullしてください
+
+#### エラー2: `MediaFileStorageError: Bad filename '*.docx'`
 
 **原因**: セッション管理の問題、Pythonバージョンの非互換性
 
