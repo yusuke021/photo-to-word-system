@@ -37,9 +37,12 @@ streamlit run app.py
    - "New app" をクリック
    - リポジトリを選択
    - Main file: `app.py`
+   - **Python version: 3.11** (自動検出されます)
    - Deploy!
 
 **完全無料**で全世界からアクセス可能なWebアプリになります！
+
+> 💡 **注意**: `.python-version` ファイルが含まれており、Python 3.11が使用されます。これにより互換性が保証されます。
 
 ---
 
@@ -153,6 +156,22 @@ pip install --upgrade streamlit
 streamlit hello  # 動作確認
 ```
 
+### Streamlit Cloudでエラーが発生する場合
+
+**エラー例**: `MediaFileStorageError: Bad filename '*.docx'`
+
+**原因**: セッション管理の問題、Pythonバージョンの非互換性
+
+**解決策**:
+1. リポジトリに `.python-version` ファイルが含まれていることを確認
+2. `requirements.txt` が最新であることを確認
+3. Streamlit Cloudでアプリを再起動 (Manage app → Reboot)
+4. ブラウザのキャッシュをクリア (Ctrl+Shift+R / Cmd+Shift+R)
+
+**ログ確認方法**:
+- アプリページ右下の "Manage app" → "Logs"
+- 詳細なエラー情報が表示されます
+
 ### tkinterが見つからない場合（デスクトップ版）
 
 **macOS:**
@@ -164,6 +183,10 @@ brew install python-tk
 ```bash
 sudo apt-get install python3-tk
 ```
+
+### ファイルアップロードサイズの制限
+
+Streamlit Cloudでは最大200MBまでアップロード可能です。より大きなファイルを扱う場合は、ローカル版を使用してください。
 
 ---
 

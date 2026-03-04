@@ -34,13 +34,28 @@
 - テンプレートファイルが見つからない場合は、空白のWordファイルが作成されます
 - テンプレートファイルはGitリポジトリに含まれるため、機密情報は含めないでください
 - テンプレート内の既存コンテンツの後に新しい表が追加されます
+- Streamlit Cloudにデプロイする場合、テンプレートファイルをGitリポジトリに含める必要があります
+
+## 🔍 Streamlit Cloudでの動作
+
+システムは以下の順序でテンプレートファイルを検索します：
+1. `os.path.dirname(__file__) + 'template.docx'` （アプリディレクトリ）
+2. `template.docx` （カレントディレクトリ）
+3. `os.getcwd() + 'template.docx'` （作業ディレクトリ）
+
+いずれかの場所でファイルが見つかれば、自動的に使用されます。
 
 ## 🔄 テンプレートの変更
 
 テンプレートを変更したい場合：
 1. `template.docx` を削除または置き換え
 2. 変更をGitにコミット
-3. 再デプロイ（Streamlit Cloudの場合は自動）
+   ```bash
+   git add template.docx
+   git commit -m "Update template"
+   git push origin main
+   ```
+3. 再デプロイ（Streamlit Cloudの場合は自動、2〜3分程度）
 
 ## 例：テンプレートに含める内容
 

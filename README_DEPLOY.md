@@ -29,10 +29,17 @@ streamlit run app.py
 
 ## 📦 技術スタック
 
-- Python 3.7+
-- Streamlit
-- python-docx
-- Pillow / pillow-heif
+- **Python 3.11** (推奨 - 互換性保証)
+- **Streamlit** (>=1.28.0, <2.0.0) - Webフレームワーク
+- **python-docx** (>=0.8.11, <2.0.0) - Word文書操作
+- **Pillow** (>=9.0.0, <11.0.0) - 画像処理
+- **pillow-heif** (>=0.10.0, <1.0.0) - HEIC形式サポート
+
+### プロジェクト構成
+- `.python-version`: Python 3.11を指定 (互換性のため)
+- `.streamlit/config.toml`: Streamlit設定 (テーマ、サーバー設定)
+- `requirements.txt`: 依存パッケージのバージョン固定
+- `template.docx`: オプションのテンプレートファイル
 
 ## 📖 使い方
 
@@ -69,7 +76,58 @@ streamlit run app.py
 - ✅ HTTPS接続により通信は暗号化されます
 
 詳細は [SECURITY.md](SECURITY.md) をご参照ください。
+## 🔧 Streamlit Cloudデプロイ設定
 
+### 必要なファイル
+1. **app.py** - メインアプリケーション
+2. **requirements.txt** - Python依存パッケージ
+3. **.python-version** - Python 3.11を指定（重要）
+4. **.streamlit/config.toml** - Streamlit設定
+5. **template.docx** - オプションのテンプレート
+
+### 主要設定
+```toml
+[server]
+maxUploadSize = 200  # 最大200MBまでアップロード可能
+enableXsrfProtection = true
+enableCORS = false
+
+[browser]
+gatherUsageStats = false
+```
+
+### デプロイ手順
+1. GitHubリポジトリを作成
+2. 上記のファイルをプッシュ
+3. https://share.streamlit.io でアプリを作成
+4. リポジトリと `app.py` を指定
+5. 自動でPython 3.11が検出されます
+
+## ⚠️ トラブルシューティング
+
+### エラー: "MediaFileStorageError"
+**原因**: セッション管理の問題、古いダウンロードリンクの参照  
+**解決策**: 
+- ブラウザのキャッシュをクリア (Ctrl+Shift+R)
+- アプリを再起動 (Manage app → Reboot)
+- 最新コードにセッション状態管理が実装済み
+
+### エラー: "Error running app"
+**原因**: Pythonバージョンの非互換性、依存パッケージの問題  
+**解決策**:
+- `.python-version` がリポジトリにあることを確認
+- `requirements.txt` のバージョン指定を確認
+- Logsを確認 (Manage app → Logs)
+
+### ログ確認方法
+1. アプリページ右下の「Manage app」をクリック
+2. 「Logs」タブを開く
+3. 詳細なエラー情報が表示されます
+
+### パフォーマンスの最適化
+- 大きな画像ファイルは事前に圧縮することを推奨
+- 一度にアップロードする画像は50枚以下を推奨
+- 印刷用(220ppi)がファイルサイズと品質のバランスが良い
 ## �📄 ライセンス
 
 MIT License
