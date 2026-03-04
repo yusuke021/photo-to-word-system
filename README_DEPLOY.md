@@ -107,13 +107,17 @@ gatherUsageStats = false
 
 ## ⚠️ トラブルシューティング
 
-### エラー: "streamlit: ERROR (spawn error)"
-**原因**: `.streamlit/config.toml` の設定項目が互換性がない  
-**具体**: `enableCORS=false` と `enableXsrfProtection=true` の両方を設定するとエラー  
+### エラー: "streamlit: ERROR (spawn error)" または "exit status 7"
+**原因**: 設定ファイルの互換性問題、構成変更の未反映  
 **解決策**: 
-- **既に修正済み** - 最新のリポジトリをpullしてください
-- CORS設定は自動設定に任せるように変更済み
-- アプリが正常に起動します
+1. **最新のコードをpull**（config.toml削除、バージョン固定済み）
+2. **アプリを手動で再起動**（最重要！）
+   - Streamlit Cloudのアプリページ
+   - 右上の「⋮」メニュー → 「Reboot app」
+   - または「Manage app」→「Reboot」ボタン
+3. 2〜3分待機してからブラウザをリフレッシュ
+
+> ⚠️ **注意**: コード更新後の自動再デプロイだけでは不十分な場合があります。設定ファイルの変更時は必ず手動再起動してください。
 
 ### エラー: "MediaFileStorageError"
 **原因**: セッション管理の問題、古いダウンロードリンクの参照  

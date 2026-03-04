@@ -158,14 +158,19 @@ streamlit hello  # 動作確認
 
 ### Streamlit Cloudでエラーが発生する場合
 
-#### エラー1: `streamlit: ERROR (spawn error)`
+#### エラー1: `streamlit: ERROR (spawn error)` または `exit status 7`
 
-**原因**: 設定ファイルの互換性問題
+**原因**: 設定ファイルの互換性問題、構成変更の未反映
 
 **解決策**:
-- 既に修正済み（最新のコードでは発生しません）
-- `.streamlit/config.toml` で `enableCORS=false` と `enableXsrfProtection=true` が互換性がない
-- 最新のリポジトリをpullしてください
+1. 最新のコードをpull（既に修正済み）
+2. **重要**: Streamlit Cloudで**アプリを手動再起動**
+   - アプリページの右上「⋮」→「Reboot app」をクリック
+   - または「Manage app」→「Reboot」
+   - 自動再デプロイだけでは設定変更が反映されない場合があります
+3. 2〜3分待ってページをリフレッシュ
+
+> 💡 **重要**: 構成ファイル（.python-version, requirements.txt等）を変更した場合、必ずアプリの再起動が必要です。
 
 #### エラー2: `MediaFileStorageError: Bad filename '*.docx'`
 
